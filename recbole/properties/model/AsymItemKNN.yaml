@@ -1,0 +1,5 @@
+similarity_metric: asymmetric_cosine      # use the asymmetric cosine similarity
+k: 10                                     # Number of neighbors
+q: 1.0                                    # Asymmetry control
+beta: 0.5                                 # Smoothing parameter
+alpha: 0.5                                # Exponent controlling the effect of set size
