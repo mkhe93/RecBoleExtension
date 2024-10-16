@@ -47,6 +47,48 @@ class BPRLoss(nn.Module):
         return loss
 
 
+class ALSLoss(nn.Module):
+    """Alternating Least Squares (ALS) Loss function."""
+
+    def __init__(self, reg_weight=0.01):
+        super(ALSLoss, self).__init__()
+        self.reg_weight = reg_weight  # Regularization term
+
+    def forward(self, user_factors, item_factors, interaction_matrix, confidence_matrix):
+        """
+        Compute the ALS loss.
+
+        Args:
+            user_factors (torch.Tensor): User latent factors matrix.
+            item_factors (torch.Tensor): Item latent factors matrix.
+            interaction_matrix (torch.Tensor): Binary interaction matrix (1 if interaction, 0 otherwise).
+            confidence_matrix (torch.Tensor): Confidence matrix (C_ui).
+
+        Returns:
+            torch.Tensor: The computed ALS loss.
+        """
+
+        # TODO: implement proper loss fonction for ALS
+
+        # Predicted preference matrix
+        prediction_matrix = torch.matmul(user_factors, item_factors.t())  # U * V^T
+
+        # Compute the reconstruction error (squared error term)
+        squared_error = confidence_matrix * (interaction_matrix - prediction_matrix) ** 2
+
+        user_reg = user_factors.norm(p=2, dim=0)
+        item_reg = item_factors.norm(p=2, dim=0)
+
+        # Regularization term for user and item factors
+        user_reg = torch.sum(user_factors ** 2)
+        item_reg = torch.sum(item_factors ** 2)
+
+        # ALS Loss: sum of squared error and regularization
+        loss = torch.sum(squared_error) + self.reg_weight * (user_reg + item_reg)
+
+        return loss
+
+
 class RegLoss(nn.Module):
     """RegLoss, L2 regularization on model parameters"""
 

@@ -8,6 +8,7 @@ from recbole.model.general_recommender.enmf import ENMF
 from recbole.model.general_recommender.fism import FISM
 from recbole.model.general_recommender.gcmc import GCMC
 from recbole.model.general_recommender.itemknn import ItemKNN
+from recbole.model.general_recommender.asymitemknn import AsymItemKNN
 from recbole.model.general_recommender.lightgcn import LightGCN
 from recbole.model.general_recommender.line import LINE
 from recbole.model.general_recommender.macridvae import MacridVAE
