@@ -645,11 +645,11 @@ class Dataset(torch.utils.data.Dataset):
             for field in feat:
                 ftype = self.field2type[field]
                 if ftype == FeatureType.TOKEN:
-                    feat[field].fillna(value=0, inplace=True)
+                    feat[field] = feat[field].fillna(value=0)  # Explicit reassignment
                 elif ftype == FeatureType.FLOAT:
-                    feat[field].fillna(value=feat[field].mean(), inplace=True)
+                    feat[field] = feat[field].fillna(value=feat[field].mean())  # Explicit reassignment
                 else:
-                    dtype = np.int64 if ftype == FeatureType.TOKEN_SEQ else np.float
+                    dtype = np.int64 if ftype == FeatureType.TOKEN_SEQ else np.float64  # Use np.float64 instead of np.float
                     feat[field] = feat[field].apply(
                         lambda x: (
                             np.array([], dtype=dtype) if isinstance(x, float) else x
