@@ -11,7 +11,9 @@
 recbole.evaluator.collector
 ################################################
 """
+from gc import collect
 
+import collections
 from recbole.evaluator.register import Register
 import torch
 import copy
@@ -224,7 +226,8 @@ class Collector(object):
         And reset some of outdated resource.
         """
         for key in self.data_struct._data_dict:
-            self.data_struct._data_dict[key] = self.data_struct._data_dict[key].cpu()
+            if (type(self.data_struct._data_dict[key]) is not collections.Counter and type(self.data_struct._data_dict[key]) is not int):
+                self.data_struct._data_dict[key] = self.data_struct._data_dict[key].cpu()
         returned_struct = copy.deepcopy(self.data_struct)
         for key in ["rec.topk", "rec.meanrank", "rec.score", "rec.items", "data.label"]:
             if key in self.data_struct:
