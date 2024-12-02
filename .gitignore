@@ -13,3 +13,12 @@ saved/
 docs/build/
 wandb/*
 /ray_log*
+/devbox.json
+/devbox.lock
+/dataset/real-life-atomic/real-life-atomic.inter
+/real-life-atomic.yaml
+/dataset/real-life-atomic/real-life-atomic-100000.inter
+/dataset/real-life-atomic-100000/real-life-atomic-100000.inter
+/dataset/real-life-atomic/real-life-atomic-500000.inter
+/dataset/real-life-atomic-500000/real-life-atomic-500000.inter
+/dataset/real-life-atomic-1000000/real-life-atomic-1000000.inter

@@ -17,6 +17,7 @@ recbole.model.general\_recommender
    recbole.model.general_recommender.fism
    recbole.model.general_recommender.gcmc
    recbole.model.general_recommender.itemknn
+   recbole.model.general_recommender.asymitemknn
    recbole.model.general_recommender.ldiffrec
    recbole.model.general_recommender.lightgcn
    recbole.model.general_recommender.line

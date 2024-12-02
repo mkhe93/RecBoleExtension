@@ -15,21 +15,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", "-m", type=str, default="UserKNN", help="name of models")
     parser.add_argument(
-        "--dataset", "-d", type=str, default="ml-100k", help="name of datasets"
+        "--dataset", "-d", type=str, default="real-life-atomic-100000", help="name of datasets"
     )
-    parser.add_argument("--config_files", type=str, default=None, help="config files")
-    parser.add_argument(
-        "--nproc", type=int, default=1, help="the number of process in this group"
-    )
-    parser.add_argument(
-        "--ip", type=str, default="localhost", help="the ip of master node"
-    )
-    parser.add_argument(
-        "--port", type=str, default="5678", help="the port of master node"
-    )
-    parser.add_argument(
-        "--world_size", type=int, default=-1, help="total number of jobs"
-    )
+    parser.add_argument("--config_files", type=str, default="real-life-atomic.yaml", help="config files")
     parser.add_argument(
         "--group_offset",
         type=int,
@@ -47,9 +35,5 @@ if __name__ == "__main__":
         args.model,
         args.dataset,
         config_file_list=config_file_list,
-        nproc=args.nproc,
-        world_size=args.world_size,
-        ip=args.ip,
-        port=args.port,
         group_offset=args.group_offset,
     )
