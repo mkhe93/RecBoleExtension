@@ -56,10 +56,17 @@ class Evaluator(object):
                             }``
             consisting out of a list of (userIdx, score) pairs per metric
         """
-        result_dict = OrderedDict()
+        best_result_dict = OrderedDict()
+        worst_result_dict = OrderedDict()
         for metric in self.metrics:
             if issubclass(self.metric_class[metric].__class__, TopkMetric):
-                user_val = self.metric_class[metric].user_dict
-                result_dict.update(user_val)
-                print(dataset.inter_num)
-        return result_dict
+                best_user_val = self.metric_class[metric].top_user_dict
+                worst_user_val = self.metric_class[metric].worst_user_dict
+
+                best_result_dict.update(best_user_val)
+                worst_result_dict.update(worst_user_val)
+
+                print(dataset.actions_of_user(526))
+                print(dataset.actions_of_user(280))
+
+        return best_result_dict

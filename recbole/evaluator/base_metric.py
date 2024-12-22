@@ -57,7 +57,8 @@ class TopkMetric(AbstractMetric):
         super().__init__(config)
         self.topk = config["topk"]
         self.top_user = config["topUser"]
-        self.user_dict = {}
+        self.top_user_dict = {}
+        self.worst_user_dict = {}
 
     def used_info(self, dataobject):
         """Get the bool matrix indicating whether the corresponding item is positive
@@ -67,15 +68,18 @@ class TopkMetric(AbstractMetric):
         topk_idx, pos_len_list = torch.split(rec_mat, [max(self.topk), 1], dim=1)
         return topk_idx.to(torch.bool).numpy(), pos_len_list.squeeze(-1).numpy()
 
-    def topn_user(self, metric, value):
-        self.user_dict = {}
+    def sort_n_users(self, metric, value, descending = True):
         user_scores = value[:, -1]
-        top_n_users = np.argsort(-user_scores)[:self.top_user]
-
         key = "{}@{}".format(metric, self.topk)
-        self.user_dict[key] = [{f"{user_idx}" : f"{round(user_scores[user_idx], self.decimal_place)}"} for user_idx in top_n_users]
 
-        return self.user_dict
+        if descending:
+            top_n_users = np.argsort(-user_scores)[:self.top_user]
+            self.top_user_dict[key] = [{f"{user_idx}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
+                                       user_idx in top_n_users]
+        else:
+            top_n_users = np.argsort(user_scores)[:self.top_user]
+            self.worst_user_dict[key] = [{f"{user_idx}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
+                                       user_idx in top_n_users]
 
     def topk_result(self, metric, value):
         """Match the metric value to the `k` and put them in `dictionary` form.
@@ -87,8 +91,9 @@ class TopkMetric(AbstractMetric):
         Returns:
             dict: metric values required in the configuration.
         """
-        # calculate top n user per metric
-        self.topn_user(metric, value)
+        # calculate top and worst n user per metric
+        self.sort_n_users(metric, value, descending=True)
+        self.sort_n_users(metric, value, descending=False)
 
         metric_dict = {}
         avg_result = value.mean(axis=0)

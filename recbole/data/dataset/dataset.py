@@ -1459,6 +1459,28 @@ class Dataset(torch.utils.data.Dataset):
         """
         return len(self.inter_feat)
 
+    def actions_of_user(self, userId):
+        """Get the total number of a certain users' interaction records.
+
+        Returns:
+            numpy.float64: Number of users' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return len(self.inter_feat[self.inter_feat[self.uid_field] == userId])
+        else:
+            return Counter(self.inter_feat[self.uid_field].numpy()).get(userId, 0)
+
+    def actions_of_items(self, itemId):
+        """Get the total number of certain items' interaction records.
+
+        Returns:
+            numpy.float64: Number of item' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return len(self.inter_feat[self.inter_feat[self.iid_field] == itemId])
+        else:
+            return Counter(self.inter_feat[self.iid_field].numpy()).get(itemId, 0)
+
     @property
     def avg_actions_of_users(self):
         """Get the average number of users' interaction records.
