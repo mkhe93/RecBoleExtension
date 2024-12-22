@@ -1410,6 +1410,9 @@ class Dataset(torch.utils.data.Dataset):
         else:
             raise ValueError(f"Field [{field}] is not a token field.")
 
+    """
+        Classical dataset characterisitics
+    """
     @property
     def user_counter(self):
         """Get the counter containing the occurrences times in ``inter_feat`` of different users.
@@ -1460,6 +1463,20 @@ class Dataset(torch.utils.data.Dataset):
         return len(self.inter_feat)
 
     @property
+    def median_actions_of_users(self):
+        """Get the median of users' interaction records.
+
+        Returns:
+            numpy.float64: Median of users' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return np.median(self.inter_feat.groupby(self.uid_field).size())
+        else:
+            return np.median(
+                list(Counter(self.inter_feat[self.uid_field].numpy()).values())
+            )
+
+    @property
     def avg_actions_of_users(self):
         """Get the average number of users' interaction records.
 
@@ -1502,6 +1519,48 @@ class Dataset(torch.utils.data.Dataset):
             )
 
     @property
+    def min_actions_of_items(self):
+        """Get the min number of item' interaction records.
+
+        Returns:
+            numpy.float64: Min number of item' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return np.min(self.inter_feat.groupby(self.iid_field).size())
+        else:
+            return np.min(
+                list(Counter(self.inter_feat[self.iid_field].numpy()).values())
+            )
+
+    @property
+    def max_actions_of_items(self):
+        """Get the max number of item' interaction records.
+
+        Returns:
+            numpy.float64: Max number of item' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return np.max(self.inter_feat.groupby(self.iid_field).size())
+        else:
+            return np.max(
+                list(Counter(self.inter_feat[self.iid_field].numpy()).values())
+            )
+
+    @property
+    def median_actions_of_items(self):
+        """Get the median of items' interaction records.
+
+        Returns:
+            numpy.float64: Median of items' interaction records.
+        """
+        if isinstance(self.inter_feat, pd.DataFrame):
+            return np.median(self.inter_feat.groupby(self.iid_field).size())
+        else:
+            return np.median(
+                list(Counter(self.inter_feat[self.iid_field].numpy()).values())
+            )
+
+    @property
     def avg_actions_of_items(self):
         """Get the average number of items' interaction records.
 
@@ -1512,8 +1571,8 @@ class Dataset(torch.utils.data.Dataset):
             return np.mean(self.inter_feat.groupby(self.iid_field).size())
         else:
             return np.mean(
-                list(Counter(self.inter_feat[self.iid_field].numpy()).values())
-            )
+                    list(Counter(self.inter_feat[self.iid_field].numpy()).values())
+                )
 
     @property
     def sparsity(self):
@@ -1523,6 +1582,101 @@ class Dataset(torch.utils.data.Dataset):
             float: Sparsity of this dataset.
         """
         return 1 - self.inter_num / self.user_num / self.item_num
+
+
+    """
+         Topological dataset characterisitics as suggested in 
+                @inproceedings{malitesta2024novel,
+                              title={A Novel Evaluation Perspective on GNNs-based Recommender Systems through the Topology of the User-Item Graph},
+                              author={Malitesta, Daniele and Pomo, Claudio and Anelli, Vito Walter and Mancino, Alberto Carlo Maria and Di Noia, Tommaso and Di Sciascio, Eugenio},
+                              booktitle={Proceedings of the 18th ACM Conference on Recommender Systems},
+                              pages={549--559},
+                              year={2024}
+                            }                
+    """
+    @property
+    def space_size(self):
+        """
+
+        Returns:
+            float:
+        """
+        scale_factor = 1000
+        return np.sqrt(self.user_num * self.inter_num) / scale_factor
+
+    @property
+    def space_size_log(self):
+        """
+
+        Returns:
+            float:
+        """
+        return np.log10(self.space_size)
+
+    @property
+    def shape(self):
+        """
+
+        Returns:
+            float:
+        """
+        return self.user_num / self.inter_num
+
+    @property
+    def shape_log(self):
+        """
+
+        Returns:
+            float:
+        """
+        return np.log10(self.shape)
+
+
+    @property
+    def sparsity_log(self):
+        """
+
+        Returns:
+            float:
+        """
+        return np.log10(self.sparsity)
+
+    @staticmethod
+    def gini(x):
+        """
+
+        Returns:
+            float:
+        """
+        total = 0
+        for i, xi in enumerate(x[:-1], 1):
+            total += np.sum(np.abs(xi - x[i:]))
+        return total / (len(x) ** 2 * np.mean(x))
+
+    @property
+    def gini_item(self):
+        """
+
+        Returns:
+            float:
+        """
+        count_items = self.inter_feat.groupby(self.iid_field).count().sort_values(by=[self.uid_field])
+        sorted_items = dict(zip(count_items.index, count_items[self.uid_field]))
+
+        return self.gini(np.array(list(sorted_items.values())))
+
+    @property
+    def gini_user(self):
+        """
+
+        Returns:
+            float:
+        """
+        count_users = self.inter_feat.groupby(self.uid_field).count().sort_values(by=[self.iid_field])
+        sorted_users = dict(zip(count_users.index, count_users[self.iid_field]))
+
+        return self.gini(np.array(list(sorted_users.values())))
+
 
     def _check_field(self, *field_names):
         """Given a name of attribute, check if it's exist.
@@ -1561,22 +1715,25 @@ class Dataset(torch.utils.data.Dataset):
 
     def __str__(self):
         info = [set_color(self.dataset_name, "pink")]
+        info.append(set_color("Traditional dataset characteristics", "pink"))
         if self.uid_field:
             info.extend(
                 [
                     set_color("The number of users", "blue") + f": {self.user_num}",
                     set_color("Average actions of users", "blue") + f": {self.avg_actions_of_users}",
+                    set_color("Median actions of users", "blue") + f": {self.median_actions_of_users}",
                     set_color("Min actions of users", "blue") + f": {self.min_actions_of_users}",
                     set_color("Max actions of users", "blue") + f": {self.max_actions_of_users}"
-
                 ]
             )
         if self.iid_field:
             info.extend(
                 [
                     set_color("The number of items", "blue") + f": {self.item_num}",
-                    set_color("Average actions of items", "blue")
-                    + f": {self.avg_actions_of_items}",
+                    set_color("Average actions of items", "blue") + f": {self.avg_actions_of_items}",
+                    set_color("Median actions of items", "blue") + f": {self.median_actions_of_items}",
+                    set_color("Min actions of items", "blue") + f": {self.min_actions_of_items}",
+                    set_color("Max actions of items", "blue") + f": {self.max_actions_of_items}"
                 ]
             )
         info.append(set_color("The number of inters", "blue") + f": {self.inter_num}")
@@ -1585,6 +1742,19 @@ class Dataset(torch.utils.data.Dataset):
                 set_color("The sparsity of the dataset", "blue")
                 + f": {self.sparsity * 100}%"
             )
+            info.append(set_color("Topological dataset characteristics", "pink"))
+            info.extend(
+                [
+                    set_color("Sparsity log", "blue") + f": {self.sparsity_log}",
+                    set_color("Space size", "blue") + f": {self.space_size}",
+                    set_color("Space size log", "blue") + f": {self.space_size_log}",
+                    set_color("Shape (user/item)", "blue") + f": {self.shape}",
+                    set_color("Shape log", "blue") + f": {self.shape_log}",
+                    set_color("Gini user", "blue") + f": {self.gini_user}",
+                    set_color("Gini item", "blue") + f": {self.gini_item}"
+                ]
+            )
+
         info.append(set_color("Remain Fields", "blue") + f": {list(self.field2type)}")
         return "\n".join(info)
 
