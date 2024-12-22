@@ -629,6 +629,19 @@ class Trainer(AbstractTrainer):
         self.wandblogger.log_eval_metrics(result, head="eval")
         return result
 
+    def evaluate_user(self, valid_data):
+        r"""Valid the model with valid data
+
+        Args:
+            valid_data (DataLoader): the valid data.
+
+        Returns:
+            dict: user_valid_result
+        """
+        user_valid_result = self.evaluator.evaluate_user(valid_data._dataset)
+
+        return user_valid_result
+
     def _map_reduce(self, result, num_sample):
         gather_result = {}
         total_sample = [
