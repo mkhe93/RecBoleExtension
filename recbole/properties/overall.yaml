@@ -53,3 +53,4 @@ valid_metric: MRR@10            # (str) The evaluation metric for early stopping
 valid_metric_bigger: True       # (bool) Whether to take a bigger valid metric value as a better result.
 eval_batch_size: 1000           # (int) The evaluation batch size.
 metric_decimal_place: 4         # (int) The decimal place of metric scores.
+topUser: 10                     # (int) The number of top / worst users to return during sort_n_users in base_metric.py (TopkMetric)

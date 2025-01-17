@@ -1459,27 +1459,41 @@ class Dataset(torch.utils.data.Dataset):
         """
         return len(self.inter_feat)
 
-    def actions_of_user(self, userId):
+    def average_popularity_of_user(self, userId):
         """Get the total number of a certain users' interaction records.
 
         Returns:
             numpy.float64: Number of users' interaction records.
         """
         if isinstance(self.inter_feat, pd.DataFrame):
-            return len(self.inter_feat[self.inter_feat[self.uid_field] == userId])
+            interacted_items = self.inter_feat[self.inter_feat[self.uid_field] == userId][self.iid_field].values
+            actions_of_items = [self.item_counter[itemId] for itemId in interacted_items]
+            return np.mean(actions_of_items)
         else:
-            return Counter(self.inter_feat[self.uid_field].numpy()).get(userId, 0)
+            interacted_items = [
+                record[self.iid_field] for record in self.inter_feat
+                if record[self.uid_field] == userId
+            ]
+            actions_of_items = [self.item_counter[itemId]for itemId in interacted_items]
+            return np.mean(actions_of_items) if actions_of_items else 0
 
-    def actions_of_items(self, itemId):
-        """Get the total number of certain items' interaction records.
+    def median_popularity_of_user(self, userId):
+        """Get the total number of a certain users' interaction records.
 
         Returns:
-            numpy.float64: Number of item' interaction records.
+            numpy.float64: Number of users' interaction records.
         """
         if isinstance(self.inter_feat, pd.DataFrame):
-            return len(self.inter_feat[self.inter_feat[self.iid_field] == itemId])
+            interacted_items = self.inter_feat[self.inter_feat[self.uid_field] == userId][self.iid_field].values
+            actions_of_items = [self.item_counter[itemId] for itemId in interacted_items]
+            return np.median(actions_of_items)
         else:
-            return Counter(self.inter_feat[self.iid_field].numpy()).get(itemId, 0)
+            interacted_items = [
+                record[self.iid_field] for record in self.inter_feat
+                if record[self.uid_field] == userId
+            ]
+            actions_of_items = [self.item_counter[itemId]for itemId in interacted_items]
+            return np.median(actions_of_items) if actions_of_items else 0
 
     @property
     def avg_actions_of_users(self):

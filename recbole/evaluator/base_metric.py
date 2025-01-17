@@ -74,11 +74,11 @@ class TopkMetric(AbstractMetric):
 
         if descending:
             top_n_users = np.argsort(-user_scores)[:self.top_user]
-            self.top_user_dict[key] = [{f"{user_idx}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
+            self.top_user_dict[key] = [{f"{user_idx+1}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
                                        user_idx in top_n_users]
         else:
             top_n_users = np.argsort(user_scores)[:self.top_user]
-            self.worst_user_dict[key] = [{f"{user_idx}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
+            self.worst_user_dict[key] = [{f"{user_idx+1}": f"{round(user_scores[user_idx], self.decimal_place)}"} for
                                        user_idx in top_n_users]
 
     def topk_result(self, metric, value):

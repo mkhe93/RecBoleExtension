@@ -629,16 +629,16 @@ class Trainer(AbstractTrainer):
         self.wandblogger.log_eval_metrics(result, head="eval")
         return result
 
-    def evaluate_user(self, valid_data):
+    def evaluate_user(self, mode='best'):
         r"""Valid the model with valid data
 
         Args:
-            valid_data (DataLoader): the valid data.
+            mode (str): 'best' if return best users, 'worst' to return worst evaluated users
 
         Returns:
             dict: user_valid_result
         """
-        user_valid_result = self.evaluator.evaluate_user(valid_data._dataset)
+        user_valid_result = self.evaluator.evaluate_user(mode)
 
         return user_valid_result
 

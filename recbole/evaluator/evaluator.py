@@ -10,7 +10,6 @@ recbole.evaluator.evaluator
 
 from recbole.evaluator.register import metrics_dict
 from recbole.evaluator.collector import DataStruct
-from recbole.data.dataset import Dataset
 from collections import OrderedDict
 from recbole.evaluator import TopkMetric
 
@@ -42,11 +41,11 @@ class Evaluator(object):
             result_dict.update(metric_val)
         return result_dict
 
-    def evaluate_user(self, dataset: Dataset):
+    def evaluate_user(self, mode='best'):
         """calculate the top users. It is called at the end of the entire training and evaluation
 
         Args:
-            dataset (Dataset): the valid data, default: None.
+            mode (str): 'best' if return best users, 'worst' to return worst evaluated users
 
         Returns:
             collections.OrderedDict: such as
@@ -66,7 +65,11 @@ class Evaluator(object):
                 best_result_dict.update(best_user_val)
                 worst_result_dict.update(worst_user_val)
 
-                print(dataset.actions_of_user(526))
-                print(dataset.actions_of_user(280))
+        if mode == 'best':
+            result_dict = best_result_dict
+        elif mode == 'worst':
+            result_dict = worst_result_dict
+        else:
+           raise NotImplementedError('Make sure "mode" for user evaluation is in ["best","worst"]')
 
-        return best_result_dict
+        return result_dict

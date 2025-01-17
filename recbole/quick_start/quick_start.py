@@ -154,12 +154,16 @@ def run_recbole(
         test_data, load_best_model=saved, show_progress=config["show_progress"]
     )
 
+    user_evaluation = trainer.evaluate_user(mode='worst')
+    user_evaluation = trainer.evaluate_user(mode='best')
+
     environment_tb = get_environment(config)
     logger.info(
         "The running environment of this training is as follows:\n"
         + environment_tb.draw()
     )
 
+    logger.info(set_color("user evaluation ", "yellow") + f": {user_evaluation}")
     logger.info(set_color("best valid ", "yellow") + f": {best_valid_result}")
     logger.info(set_color("test result", "yellow") + f": {test_result}")
 
